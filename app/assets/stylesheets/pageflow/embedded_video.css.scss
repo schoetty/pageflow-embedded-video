@@ -41,7 +41,8 @@
       }
     }
 
-    &.full_width, &.full_width.widescreened {
+    &.full_width,
+    &.full_width.widescreened {
       width: 100%;
       float: none;
       position: relative;
@@ -77,70 +78,28 @@
     }
 
     .iframe_overlay {
-      .has_mobile_platform & {
+/*      .has_mobile_platform & { */
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         pointer-events: all;
-        background-color: transparent;
-      }
+        background-color: blue;
+/*      } */
     }
 
-    .text_position_right &.widescreened {
+    .text_position_right &.widescreened,
+    .text_position_right &.full_width {
       right: auto;
       left: 8%;
       width: 42%;
-    }
-
-    .bigscreen_toggler {
-      width: 24px;
-      height: 24px;
-      background-image: image-url('fs_close_sprite.png');
-      background-position: 0 0;
-      background-repeat: no-repeat;
-      position: absolute;
-      top: 3px;
-      right: 18px;
-      color: transparent;
-      text-indent: -4000px;
-      opacity: 0;
-      cursor: pointer;
-      display: none;
-      @include transition(opacity 0.5s ease);
-
-      .has_mobile_platform & {
-        display: none !important;
-      }
-    }
-
-    &:hover .bigscreen_toggler, &.hovering .bigscreen_toggler {
-      opacity: 1;
-    }
-
-    .bigScreen & {
-      position: absolute;
-      width: 86% !important;
-      height: 87%;
-      top: 10%;
-      left: 5% !important;
-      z-index: 201;
-      margin-top: 0 !important;
-      max-height: none !important;
-
-      .bigscreen_toggler {
-        background-position: -25px 0;
-      }
     }
 
     &.active {
       iframe {
         visibility: visible;
         opacity: 1;
-      }
-      .bigscreen_toggler {
-        display: block;
       }
     }
   }
