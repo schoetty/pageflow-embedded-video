@@ -26,7 +26,9 @@
     </div>
     <div class="iframe_container">
       <div class="close_button" tabindex="4" title="Embedded Video verlassen">Schließen</div>
-      <div class="iframe_wrapper"></div>
+      <div class="iframe_wrapper">
+        <div class="desktop_iframe_overlay"></div>
+      </div>
       <% if configuration['video_caption'].present? %>
         <div class="video_caption"><%= configuration['video_caption'] %></div>
       <% end %>

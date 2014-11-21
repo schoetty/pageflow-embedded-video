@@ -9,7 +9,7 @@
     margin-top: 0;
   }
 
-  .iframe_overlay {
+  .mobile_iframe_overlay {
     .has_mobile_platform & {
       background-repeat: no-repeat;
       background-size: cover;
@@ -132,6 +132,15 @@
         visibility: visible;
         opacity: 1;
       }
+    }
+
+    .desktop_iframe_overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1;
     }
   }
 

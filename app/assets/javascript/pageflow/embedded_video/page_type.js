@@ -3,7 +3,8 @@
 pageflow.pageType.register('embedded_video', _.extend({
 
   enhance: function(pageElement, configuration) {
-    var that = this;
+    var that = this,
+      desktopIframeOverlay = pageElement.find('.desktop_iframe_overlay');
 
     if (pageflow.features.has('mobile platform')) {
       pageElement.find('.close_button, .iframe_container').click(function(event) {
@@ -13,12 +14,18 @@ pageflow.pageType.register('embedded_video', _.extend({
         pageflow.hideText.deactivate();
       });
 
+      desktopIframeOverlay.remove();
       this._initPlaceholderImage(pageElement, configuration);
     }
 
     this.fullscreen = false;
     $(document).on('fullscreenchange mozfullscreenchange webkitfullscreenchange msfullscreenchange', function() {
       that.fullscreen = !that.fullscreen;
+    });
+
+    desktopIframeOverlay.on('click', function() {
+      that._playVideo();
+      desktopIframeOverlay.hide();
     });
   },
 
@@ -27,7 +34,7 @@ pageflow.pageType.register('embedded_video', _.extend({
         pageHeader = pageElement.find('.page_header'),
         scroller = pageElement.find('.scroller'),
         container = pageElement.find('.iframe_container'),
-        iframeOverlay = pageElement.find('.iframe_overlay'),
+        mobileOverlay = pageElement.find('.mobile_iframe_overlay'),
         videoCaption = pageElement.find('.video_caption'),
         widescreened = pageElement.width() > 1430,
         fullWidth = configuration.full_width,
@@ -56,7 +63,7 @@ pageflow.pageType.register('embedded_video', _.extend({
       iframeWrapper.append(videoCaption);
     }
     else if (mobile) {
-      iframeOverlay.after(videoCaption);
+      mobileOverlay.after(videoCaption);
     }
     else {
       iframeWrapper.after(videoCaption);
@@ -205,6 +212,18 @@ pageflow.pageType.register('embedded_video', _.extend({
           'onReady': function(event) {
             that.player = event.target;
             that._setPlayerVolume(pageflow.settings.get('volume'));
+          },
+          'onStateChange': function(event) {
+            if (event.data == YT.PlayerState.BUFFERING) {
+            }
+            else if (event.data == YT.PlayerState.PLAYING) {
+            }
+            else if (event.data == YT.PlayerState.PAUSED) {
+              that._showDesktopIframeOverlay(pageElement);
+            }
+            else if (event.data == YT.PlayerState.ENDED) {
+              that._showDesktopIframeOverlay(pageElement);
+            }
           }
         }
       });
@@ -232,13 +251,24 @@ pageflow.pageType.register('embedded_video', _.extend({
       src: uri.toString()
     });
 
-    pageElement.find('.iframe_wrapper').prepend(iframe);
-
     this.player = $f(iframe);
 
-    this.player.addEvent('ready', function() {
+    this.player.addEvent('ready', function(foo, bar) {
       that._setPlayerVolume(pageflow.settings.get('volume'));
+
+      that.player.addEvent('pause', function() {
+        that._showDesktopIframeOverlay(pageElement);
+      });
+      that.player.addEvent('finish', function() {
+        that._showDesktopIframeOverlay(pageElement);
+      });
     });
+
+    pageElement.find('.iframe_wrapper').prepend(iframe);
+  },
+
+  _showDesktopIframeOverlay: function(pageElement) {
+    pageElement.find('.desktop_iframe_overlay').show();
   },
 
   _updatePlayerSrc: function(pageElement, configuration) {
@@ -248,6 +278,18 @@ pageflow.pageType.register('embedded_video', _.extend({
         url = new URI(p.attr('src'));
 
     p.attr('src', url.filename(that._getVideoId(newUrl)));
+  },
+
+  _playVideo: function() {
+    var player = this.player;
+
+    if (player) {
+      if (typeof player.playVideo === 'function') {
+        player.playVideo();
+      } else if (typeof player.api === 'function') {
+        player.api('play');
+      }
+    }
   },
 
   _setPlayerVolume: function(value) {
@@ -284,7 +326,7 @@ pageflow.pageType.register('embedded_video', _.extend({
       container = pageElement.find('.iframe_container'),
       url = configuration.display_embedded_video_url;
 
-    $div.addClass('iframe_overlay ' + this._urlOrigin(url));
+    $div.addClass('mobile_iframe_overlay ' + this._urlOrigin(url));
 
     this._setBackgroundImage(url, $div);
     pageHeader.after($div);
